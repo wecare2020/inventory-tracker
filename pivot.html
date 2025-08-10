@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YAML → Pivot Table</title>
+
+  <!-- Tabulator (bảng tương tác) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.2.5/dist/css/tabulator.min.css">
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;padding:24px}</style>
+</head>
+<body>
+  <h1>Cấu trúc site (từ data.yaml)</h1>
+  <div id="table"></div>
+
+  <!-- js-yaml để parse YAML, Tabulator để render bảng -->
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+  <script>
+    // Chuyển YAML dạng tree → mảng hàng {Node1, Node2, Name, Prompt}
+    function flatten(obj, path = []) {
+      const rows = [];
+      for (const key of Object.keys(obj)) {
+        const val = obj[key];
+        if (val && typeof val === "object" && !("length" in val) && !("Prompt" in val)) {
+          // node trung gian
+          const sub = flatten(val, path.concat(key));
+          rows.push(...sub);
+        } else {
+          // leaf: key là Name, val là Prompt (string) hoặc {}
+          rows.push({
+            Node1: path[0] || "",
+            Node2: path[1] || "",
+            Node3: path[2] || "",
+            Name: key,
+            Prompt: typeof val === "string" ? val : ""
+          });
+        }
+      }
+      return rows;
+    }
+
+    fetch("data.yaml")
+      .then(r => r.text())
+      .then(text => {
+        const yaml = jsyaml.load(text);     // parse YAML → object
+        const rows = flatten(yaml);         // object → rows
+
+        new Tabulator("#table", {
+          data: rows,
+          layout: "fitDataStretch",
+          height: "700px",
+          columns: [
+            {title:"Node1", field:"Node1", headerFilter:"input"},
+            {title:"Node2", field:"Node2", headerFilter:"input"},
+            {title:"Node3", field:"Node3", headerFilter:"input"},
+            {title:"Name",  field:"Name",  headerFilter:"input"},
+            {title:"Prompt",field:"Prompt", headerFilter:"input", widthGrow:2},
+          ],
+          groupBy: ["Node1","Node2"],  // “pivot” theo cấp
+          initialSort: [{column:"Node1", dir:"asc"}],
+        });
+      });
+  </script>
+</body>
+</html>
