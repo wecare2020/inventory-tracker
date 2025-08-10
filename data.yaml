@@ -1,0 +1,12 @@
+Page:
+  About Total: {}
+  Blog:
+    Blog page: "Trang index blog, grid + sidebar"
+    Post Grid: "Grid 3 cột bài viết"
+    Thẻ Post: "Card ảnh + tag + tiêu đề"
+    Blog Post:
+      Blog Post page: "Template bài viết, meta SEO + TOC"
+      Article Body: "Rich-text MDX → HTML"
+      Article Header: "Banner cover + tiêu đề + tác giả + ngày"
+      Author Box: "Avatar + bio tác giả"
+      Related Post: "Slider 3 bài liên quan"
